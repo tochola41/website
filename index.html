@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tabby T: your money, simply kept</title>
+<meta name="description" content="Tabby T keeps your money records for you: money in, money out, budget, statements and more, on your phone. KES 500 a month, first 7 days free. Made in Kenya by Tom Ochola.">
+<meta property="og:title" content="Tabby T">
+<meta property="og:description" content="Your money, simply kept. Try it free for 7 days.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: a ledger page. A dark kahawa band up top, then ruled rows like a money book, each feature an entry. */
+:root {
+  --bg: #FAF6EF; --surface: #FFFFFF; --ink: #2A1810; --muted: #6E5A4C; --line: #E6DACB;
+  --band: #3B2016; --band-ink: #FBF3E6; --band-muted: #D9C6B2; --gold: #C77D1E; --gold-ink: #24130A;
+  --in: #2E7D4F; --out: #B3412E;
+  --display: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17100C; --surface: #221812; --ink: #F3E9DC; --muted: #B9A796; --line: #3A2A20;
+  --band: #2A1810; --band-ink: #FBF3E6; --band-muted: #CDB8A3; --gold: #E5A23C; --gold-ink: #24130A;
+  --in: #6FC596; --out: #F08A74; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #17100C; --surface: #221812; --ink: #F3E9DC; --muted: #B9A796; --line: #3A2A20;
+  --band: #2A1810; --band-ink: #FBF3E6; --band-muted: #CDB8A3; --gold: #E5A23C; --gold-ink: #24130A;
+  --in: #6FC596; --out: #F08A74; color-scheme: dark; }
+
+html[data-lang="sw"] [lang="en"], html:not([data-lang="sw"]) [lang="sw"] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 400 17px/1.6 var(--body); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+/* hero */
+.hero { background: var(--band); color: var(--band-ink); }
+.hero .wrap { padding-block: 28px 56px; display: grid; gap: 40px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 800 20px var(--display); letter-spacing: .01em; }
+.brand svg { width: 38px; height: 38px; flex: none; }
+.langs { display: flex; border: 1.5px solid var(--band-muted); border-radius: 99px; padding: 3px; }
+.langs button { background: none; border: 0; color: var(--band-ink); font: 700 13px var(--display); padding: 6px 12px; border-radius: 99px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink); }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: center; }
+.hero h1 { font-size: clamp(38px, 6.4vw, 64px); font-weight: 800; letter-spacing: -.02em; }
+.hero h1 em { font-style: normal; color: var(--gold); }
+.lead { margin-top: 18px; font-size: 19px; color: var(--band-muted); max-width: 34em; }
+.ctas { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font: 700 16px var(--display); padding: 14px 22px; border-radius: 14px; }
+.btn-gold { background: var(--gold); color: var(--gold-ink); }
+.price-tag { font: 600 15px var(--body); color: var(--band-ink); border: 1.5px dashed var(--band-muted); padding: 10px 14px; border-radius: 12px; }
+
+/* the example phone screen */
+.phone { background: var(--surface); color: var(--ink); border-radius: 28px; padding: 10px; box-shadow: 0 24px 60px rgba(0,0,0,.35); max-width: 340px; width: 100%; justify-self: center; }
+.screen-top { background: var(--band); color: var(--band-ink); border-radius: 20px; padding: 16px; display: grid; gap: 12px; }
+.ex { justify-self: start; font: 700 11px var(--display); letter-spacing: .08em; text-transform: uppercase; background: var(--gold); color: var(--gold-ink); padding: 3px 8px; border-radius: 6px; }
+.lbl { font: 600 11px var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--band-muted); }
+.big { font: 800 34px var(--display); font-variant-numeric: tabular-nums; }
+.big small { font-size: 15px; font-weight: 600; margin-right: 6px; color: var(--band-muted); }
+.inout { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.inout div { background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px 10px; font: 700 16px var(--display); font-variant-numeric: tabular-nums; }
+.tx { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 12px 8px; border-bottom: 1px solid var(--line); }
+.tx:last-child { border-bottom: 0; }
+.tx b { font: 700 15px var(--display); }
+.tx span { font-size: 13px; color: var(--muted); }
+.tx .amt { grid-row: 1 / span 2; grid-column: 2; align-self: center; font: 700 16px var(--display); font-variant-numeric: tabular-nums; }
+.amt.in { color: var(--in); } .amt.out { color: var(--out); }
+
+/* sections */
+section.block .wrap { padding-block: 64px 8px; display: grid; gap: 28px; }
+.eyebrow { font: 700 13px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
+.block h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -.01em; }
+.intro { color: var(--muted); max-width: 40em; }
+
+/* features as ledger rows */
+.ledger { border-top: 2px solid var(--ink); }
+.row { display: grid; grid-template-columns: minmax(0, 15em) minmax(0, 1fr); gap: 8px 32px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.row h3 { font-size: 20px; font-weight: 700; display: flex; gap: 10px; align-items: baseline; }
+.row h3 .tick { color: var(--gold); font-weight: 800; }
+.row p { color: var(--muted); max-width: 38em; }
+
+/* steps */
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; counter-reset: s; }
+.step { border-top: 3px solid var(--gold); padding-top: 14px; display: grid; gap: 8px; }
+.step .n { font: 800 15px var(--display); color: var(--gold); }
+.step h3 { font-size: 20px; }
+.step p { color: var(--muted); }
+
+.who { display: flex; flex-wrap: wrap; gap: 10px; }
+.who span { border: 1.5px solid var(--line); border-radius: 99px; padding: 7px 14px; font: 600 15px var(--display); background: var(--surface); }
+
+/* price + privacy */
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 26px; display: grid; gap: 14px; align-content: start; }
+.panel.price { border: 2px solid var(--gold); }
+.amount { font: 800 44px var(--display); font-variant-numeric: tabular-nums; }
+.amount small { font-size: 18px; font-weight: 600; color: var(--muted); }
+.panel ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.panel h3 { font-size: 22px; }
+.panel p { color: var(--muted); }
+
+/* questions */
+.faq { border-top: 2px solid var(--ink); }
+.faq details { border-bottom: 1px solid var(--line); padding: 16px 0; }
+.faq summary { cursor: pointer; font: 700 18px var(--display); list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--gold); font-size: 22px; line-height: 1; }
+.faq details[open] summary::after { content: "−"; }
+.faq details p { margin-top: 10px; color: var(--muted); max-width: 42em; }
+
+/* closing */
+.close { margin-top: 64px; background: var(--band); color: var(--band-ink); }
+.close .wrap { padding-block: 48px; display: grid; gap: 18px; justify-items: start; }
+.close h2 { font-size: clamp(26px, 3.6vw, 36px); }
+.close p { color: var(--band-muted); max-width: 40em; }
+.foot { padding-top: 18px; font-size: 14px; color: var(--band-muted); border-top: 1px solid rgba(255,255,255,.15); width: 100%; }
+
+@media (max-width: 760px) {
+  .hero-grid, .pair, .steps { grid-template-columns: minmax(0, 1fr); }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .lead { font-size: 18px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .phone { animation: rise .7s ease-out both; }
+  @keyframes rise { from { transform: translateY(14px); } to { transform: none; } }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#2A1810"/><path d="M14 14h36v9H36.5v27h-9V23H14z" fill="#FBF3E6"/><path d="M12 44.5 52 29v7L12 51.5z" fill="#E5A23C"/></svg>
+        Tabby T
+      </div>
+      <div class="langs" role="group" aria-label="Language">
+        <button type="button" id="lang-en" data-set="en" aria-pressed="true">English</button>
+        <button type="button" id="lang-sw" data-set="sw" aria-pressed="false">Kiswahili</button>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <h1><span lang="en">Every shilling, <em>tallied.</em></span><span lang="sw">Kila shilingi, <em>imehesabiwa.</em></span></h1>
+        <p class="lead">
+          <span lang="en">A simple money book on your phone. Record what comes in and goes out of your M-Pesa, cash and bank, and always know where you stand. In English or Kiswahili.</span>
+          <span lang="sw">Daftari rahisi la pesa kwenye simu yako. Andika pesa inayoingia na kutoka kwenye M-Pesa, pesa taslimu na benki, na ujue hali yako kila wakati. Kwa Kiingereza au Kiswahili.</span>
+        </p>
+        <div class="ctas">
+          <a class="btn btn-gold" href="https://tochola41.github.io/tabbyt/" target="_blank" rel="noopener"><span lang="en">Try the demo</span><span lang="sw">Jaribu mfano</span> →</a>
+          <span class="price-tag"><span lang="en">KES 500 a month · first 7 days free</span><span lang="sw">KES 500 kwa mwezi · siku 7 za kwanza bure</span></span>
+        </div>
+      </div>
+
+      <div class="phone" aria-label="Example of the Tabby T home screen">
+        <div class="screen-top">
+          <span class="ex"><span lang="en">Example figures</span><span lang="sw">Takwimu za mfano</span></span>
+          <div>
+            <div class="lbl"><span lang="en">Total balance</span><span lang="sw">Salio la jumla</span></div>
+            <div class="big"><small>KES</small>125,080</div>
+          </div>
+          <div class="inout">
+            <div><div class="lbl"><span lang="en">In · Nov</span><span lang="sw">Ndani · Nov</span></div>55,350</div>
+            <div><div class="lbl"><span lang="en">Out · Nov</span><span lang="sw">Nje · Nov</span></div>16,730</div>
+          </div>
+        </div>
+        <div class="tx"><b><span lang="en">Business income</span><span lang="sw">Mapato ya biashara</span></b><span>M-Pesa · <span lang="en">today</span><span lang="sw">leo</span></span><span class="amt in">+1,500</span></div>
+        <div class="tx"><b><span lang="en">Food &amp; groceries</span><span lang="sw">Chakula</span></b><span><span lang="en">Cash · today</span><span lang="sw">Taslimu · leo</span></span><span class="amt out">−840</span></div>
+        <div class="tx"><b><span lang="en">Transport</span><span lang="sw">Usafiri</span></b><span><span lang="en">M-Pesa · yesterday</span><span lang="sw">M-Pesa · jana</span></span><span class="amt out">−200</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="block">
+    <div class="wrap">
+      <div class="eyebrow"><span lang="en">What it does for you</span><span lang="sw">Inakusaidia vipi</span></div>
+      <h2><span lang="en">Everything an accountant would keep for you, without the paperwork.</span><span lang="sw">Kila kitu ambacho mhasibu angekuwekea, bila makaratasi.</span></h2>
+      <div class="ledger">
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">Know your balance</span><span lang="sw">Jua salio lako</span></h3>
+          <p><span lang="en">See the money in all your accounts in one place: M-Pesa, cash, bank, even dollars.</span><span lang="sw">Ona pesa zako zote mahali pamoja: M-Pesa, pesa taslimu, benki, hata dola.</span></p></div>
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">Record in seconds</span><span lang="sw">Andika kwa sekunde</span></h3>
+          <p><span lang="en">Tap +, choose money in or money out, type the amount. Done. No internet? It keeps your entry and sends it when you are back online.</span><span lang="sw">Bonyeza +, chagua pesa imeingia au imetoka, andika kiasi. Basi. Hakuna mtandao? Inahifadhi na kutuma ukirudi mtandaoni.</span></p></div>
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">See where it goes</span><span lang="sw">Ona pesa zinaenda wapi</span></h3>
+          <p><span lang="en">Every shilling gets a label: food, rent, transport, school fees. See what took the most this month.</span><span lang="sw">Kila shilingi inapewa jina: chakula, kodi, usafiri, karo. Ona kilichochukua pesa nyingi mwezi huu.</span></p></div>
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">A budget that guards you</span><span lang="sw">Bajeti inayokulinda</span></h3>
+          <p><span lang="en">Set your monthly budget. Each day Tabby T tells you how much is safe to spend, so money stops disappearing on impulse.</span><span lang="sw">Weka bajeti ya mwezi. Kila siku Tabby T inakuambia kiasi salama cha kutumia, ili pesa isipotee kwa matumizi ya ghafla.</span></p></div>
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">Goals and loans</span><span lang="sw">Malengo na mikopo</span></h3>
+          <p><span lang="en">Save for land, school fees or a car and watch your progress. Track what you owe and what others owe you; the balance goes down by itself as payments come in.</span><span lang="sw">Weka akiba ya shamba, karo au gari na uone maendeleo. Fuatilia madeni yako na unayodai; salio linapungua lenyewe malipo yakifanyika.</span></p></div>
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">Proper statements</span><span lang="sw">Taarifa kamili</span></h3>
+          <p><span lang="en">Monthly and yearly statements, the way an accountant prepares them, in English or Kiswahili. Download a PDF for your bank, sacco or loan application.</span><span lang="sw">Taarifa za kila mwezi na mwaka, kama mhasibu anavyoziandaa, kwa Kiingereza au Kiswahili. Pakua PDF kwa benki, sacco au ombi la mkopo.</span></p></div>
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">Plan your day</span><span lang="sw">Panga siku yako</span></h3>
+          <p><span lang="en">List your tasks and Tabby T sorts them by what is urgent and what matters, with the money each one needs.</span><span lang="sw">Orodhesha kazi zako na Tabby T inazipanga kwa uharaka na umuhimu, pamoja na pesa kila moja inahitaji.</span></p></div>
+        <div class="row"><h3><span class="tick">✓</span><span lang="en">Only what you need</span><span lang="sw">Unachohitaji tu</span></h3>
+          <p><span lang="en">Choose Simple to see just your balance and statements, or Everything when you are ready for more. Change it any time.</span><span lang="sw">Chagua Rahisi kuona salio na taarifa tu, au Kila kitu ukiwa tayari kwa zaidi. Badilisha wakati wowote.</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="eyebrow"><span lang="en">How to start</span><span lang="sw">Jinsi ya kuanza</span></div>
+      <h2><span lang="en">Three steps, and you are tallying.</span><span lang="sw">Hatua tatu, na unaanza kuhesabu.</span></h2>
+      <div class="steps">
+        <div class="step"><span class="n"><span lang="en">Step 1</span><span lang="sw">Hatua 1</span></span>
+          <h3><span lang="en">Send your Gmail and phone number</span><span lang="sw">Tuma Gmail yako na namba ya simu</span></h3>
+          <p><span lang="en">We set up your Tabby T and send you a customer code and PIN.</span><span lang="sw">Tunakuandalia Tabby T na kukutumia namba ya mteja na PIN.</span></p></div>
+        <div class="step"><span class="n"><span lang="en">Step 2</span><span lang="sw">Hatua 2</span></span>
+          <h3><span lang="en">Record as you go</span><span lang="sw">Andika unapoendelea</span></h3>
+          <p><span lang="en">Use the app on your phone or computer, or a short form. Each entry takes less than a minute.</span><span lang="sw">Tumia programu kwenye simu au kompyuta, au fomu fupi. Kila kumbukumbu inachukua chini ya dakika moja.</span></p></div>
+        <div class="step"><span class="n"><span lang="en">Step 3</span><span lang="sw">Hatua 3</span></span>
+          <h3><span lang="en">See where you stand</span><span lang="sw">Jua hali yako</span></h3>
+          <p><span lang="en">Your balance, budget and statements update themselves.</span><span lang="sw">Salio, bajeti na taarifa zako zinajisasisha zenyewe.</span></p></div>
+      </div>
+      <div class="who" aria-label="Who it is for">
+        <span><span lang="en">Salaried workers</span><span lang="sw">Wafanyakazi</span></span>
+        <span><span lang="en">Small traders</span><span lang="sw">Wafanyabiashara wadogo</span></span>
+        <span><span lang="en">Freelancers</span><span lang="sw">Wanaojiajiri</span></span>
+        <span><span lang="en">Families</span><span lang="sw">Familia</span></span>
+        <span><span lang="en">Chama members</span><span lang="sw">Wanachama wa chama</span></span>
+        <span><span lang="en">Students</span><span lang="sw">Wanafunzi</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="pair">
+        <div class="panel price">
+          <div class="eyebrow"><span lang="en">Price</span><span lang="sw">Bei</span></div>
+          <div class="amount">KES 500 <small><span lang="en">a month</span><span lang="sw">kwa mwezi</span></small></div>
+          <p><span lang="en">Your first 7 days are free. Pay by M-Pesa from your phone; your account renews by itself when the payment arrives. No contract: stop any time.</span><span lang="sw">Siku 7 za kwanza ni bure. Lipa kwa M-Pesa kutoka simu yako; akaunti yako inasasishwa yenyewe malipo yakifika. Hakuna mkataba: acha wakati wowote.</span></p>
+          <ul>
+            <li><span lang="en">App for phone and computer</span><span lang="sw">Programu ya simu na kompyuta</span></li>
+            <li><span lang="en">Budget, goals, loans and statements</span><span lang="sw">Bajeti, malengo, mikopo na taarifa</span></li>
+            <li><span lang="en">PDF downloads</span><span lang="sw">Kupakua PDF</span></li>
+            <li><span lang="en">English and Kiswahili</span><span lang="sw">Kiingereza na Kiswahili</span></li>
+            <li><span lang="en">Help when you need it</span><span lang="sw">Msaada unapouhitaji</span></li>
+          </ul>
+        </div>
+        <div class="panel">
+          <div class="eyebrow"><span lang="en">Your privacy</span><span lang="sw">Faragha yako</span></div>
+          <h3><span lang="en">Your records are yours.</span><span lang="sw">Kumbukumbu zako ni zako.</span></h3>
+          <p><span lang="en">Your records are kept in Google Drive, run by Tabby T. We open them only when you ask for help. If you leave, you get a copy of your records and we delete ours.</span><span lang="sw">Kumbukumbu zako zinahifadhiwa kwenye Google Drive inayosimamiwa na Tabby T. Tunazifungua tu ukiomba msaada. Ukiondoka, unapata nakala ya kumbukumbu zako na tunafuta zetu.</span></p>
+          <p><span lang="en">You never give us your Google password, and Tabby T does not read your M-Pesa messages. You record only what you choose.</span><span lang="sw">Hutatupa nenosiri lako la Google kamwe, na Tabby T haisomi ujumbe wako wa M-Pesa. Unaandika tu unachochagua.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="eyebrow"><span lang="en">Questions</span><span lang="sw">Maswali</span></div>
+      <div class="faq">
+        <details><summary><span lang="en">Do I need to know accounting?</span><span lang="sw">Je, nahitaji kujua uhasibu?</span></summary>
+          <p><span lang="en">No. If you can send M-Pesa, you can use Tabby T. It does the adding up for you.</span><span lang="sw">Hapana. Ukiweza kutuma M-Pesa, unaweza kutumia Tabby T. Inakufanyia hesabu.</span></p></details>
+        <details><summary><span lang="en">What phone do I need?</span><span lang="sw">Nahitaji simu gani?</span></summary>
+          <p><span lang="en">Any smartphone with a browser, or a computer. You can add Tabby T to your home screen so it opens like any other app.</span><span lang="sw">Simu janja yoyote yenye kivinjari, au kompyuta. Unaweza kuweka Tabby T kwenye skrini ya mwanzo ifunguke kama programu nyingine.</span></p></details>
+        <details><summary><span lang="en">Can I try it before I pay?</span><span lang="sw">Naweza kujaribu kabla ya kulipa?</span></summary>
+          <p><span lang="en">Yes. Open the demo now to see how it looks with example figures. Then you get 7 days free on your own account.</span><span lang="sw">Ndiyo. Fungua mfano sasa uone inavyoonekana kwa takwimu za mfano. Kisha unapata siku 7 bure kwenye akaunti yako.</span></p></details>
+        <details><summary><span lang="en">What happens if I stop paying?</span><span lang="sw">Nini kinatokea nikiacha kulipa?</span></summary>
+          <p><span lang="en">Your records stay safe but are locked until you pay again. Nothing is lost.</span><span lang="sw">Kumbukumbu zako zinabaki salama lakini zinafungwa hadi ulipe tena. Hakuna kinachopotea.</span></p></details>
+        <details><summary><span lang="en">Can I use it in Kiswahili?</span><span lang="sw">Naweza kuitumia kwa Kiswahili?</span></summary>
+          <p><span lang="en">Yes. The app and the statements work in both English and Kiswahili. Switch with one tap.</span><span lang="sw">Ndiyo. Programu na taarifa zinafanya kazi kwa Kiingereza na Kiswahili. Badilisha kwa kubonyeza mara moja.</span></p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="close">
+    <div class="wrap">
+      <h2><span lang="en">Ready to know where your money goes?</span><span lang="sw">Uko tayari kujua pesa zako zinaenda wapi?</span></h2>
+      <p><span lang="en">Reply to the person who sent you this page with your Gmail address and the phone number you will pay from. Your 7 free days start the same day.</span><span lang="sw">Jibu aliyekutumia ukurasa huu kwa anwani yako ya Gmail na namba ya simu utakayolipia. Siku zako 7 za bure zinaanza siku hiyo hiyo.</span></p>
+      <a class="btn btn-gold" href="https://tochola41.github.io/tabbyt/" target="_blank" rel="noopener"><span lang="en">Try the demo first</span><span lang="sw">Jaribu mfano kwanza</span> →</a>
+      <div class="foot"><span lang="en">Tabby T · made in Kenya by Tom Ochola</span><span lang="sw">Tabby T · imetengenezwa Kenya na Tom Ochola</span></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  const root = document.documentElement;
+  function setLang(l) {
+    root.setAttribute('data-lang', l);
+    root.lang = l;
+    document.querySelectorAll('[data-set]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === l)));
+    try { localStorage.setItem('tabbyt-page-lang', l); } catch (e) { /* storage blocked */ }
+  }
+  let saved = 'en';
+  try { saved = localStorage.getItem('tabbyt-page-lang') || 'en'; } catch (e) { /* storage blocked */ }
+  setLang(saved === 'sw' ? 'sw' : 'en');
+  document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.set)));
+})();
+</script>
+
+</body>
+</html>
